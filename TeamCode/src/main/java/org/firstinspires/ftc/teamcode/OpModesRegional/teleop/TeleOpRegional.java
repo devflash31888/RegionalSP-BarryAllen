@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.SubSystemsRegional.DriveTrain;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.FlowerRemover;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Gate;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Intake;
+import org.firstinspires.ftc.teamcode.SubSystemsRegional.Shooter;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Turret;
 
 import dev.easyfamily.EasyStack.components.EasyCommandComponent;
@@ -21,6 +22,8 @@ public class TeleOpRegional extends EasyOpMode {
     private final DriveTrain drivetrain = new DriveTrain();
     private final FlowerRemover flower = new FlowerRemover();
     private final Turret turret = new Turret();
+    private final Shooter shooter = new Shooter();
+
     private EasyGamepad score, nav;
 
     @Override
@@ -34,6 +37,7 @@ public class TeleOpRegional extends EasyOpMode {
                 new EasySubsystemComponent(drivetrain),
                 new EasySubsystemComponent(flower),
                 new EasySubsystemComponent(turret),
+                new EasySubsystemComponent(shooter),
                 new EasyCommandComponent()
         );
     }
@@ -45,22 +49,24 @@ public class TeleOpRegional extends EasyOpMode {
 
         drivetrain.teleopDrive(nav);
 
-        if(nav.xPressed()) {
+        if (nav.xPressed()) {
             drivetrain.resetHeading();
         }
 
-        if(nav.aPressed()) {
+        if (nav.aPressed()) {
             drivetrain.relocalize();
         }
 
+        double robotX = drivetrain.getPose().x();
+        double robotY = drivetrain.getPose().y();
+        double robotHeading = drivetrain.getHeading();
+
         if (nav.leftBumperToggle()) {
             turret.setManualTarget();
+            shooter.setDefault();
         } else {
-            double robotX = drivetrain.getPose().x();
-            double robotY = drivetrain.getPose().y();
-            double robotHeading = drivetrain.getHeading();
-
             turret.aimAtGoal(robotX, robotY, robotHeading);
+            shooter.calculateDistanceAndInterpolate(robotX, robotY);
 
             if (score.rightBumperPressed()) {
                 turret.incrementManualOffset();
@@ -87,19 +93,18 @@ public class TeleOpRegional extends EasyOpMode {
             }
         }
 
-        if(score.bToggle()) {
+        if (score.bToggle()) {
             flower.down();
         } else {
             flower.up();
         }
 
         telemetry.addData("Turret Alvo", turret.getTargetDegrees());
-        telemetry.addData("Turret Erro", turret.getErrorDegrees());
-        telemetry.addData("Posição X", drivetrain.getPose().x());
-        telemetry.addData("Posição Y", drivetrain.getPose().y());
-        telemetry.addData("Posição Z", drivetrain.getPose().heading());
+        telemetry.addData("Turret Offset Manual", turret.getManualOffset());
+        telemetry.addData("Posição X", robotX);
+        telemetry.addData("Posição Y", robotY);
+        telemetry.addData("Posição Z", robotHeading);
         telemetry.update();
-
     }
 
     @Override
@@ -107,6 +112,6 @@ public class TeleOpRegional extends EasyOpMode {
         intake.turnOff();
         gate.close();
         turret.stop();
+        shooter.stop();
     }
-
 }

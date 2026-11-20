@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModesRegional.teleop;
+package org.firstinspires.ftc.teamcode.Tuning;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.SubSystemsRegional.DriveTrain;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.FlowerRemover;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Gate;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Intake;
-import org.firstinspires.ftc.teamcode.Tuning.ShooterSubSystem;
 
 import dev.easyfamily.EasyStack.components.EasyCommandComponent;
 import dev.easyfamily.EasyStack.components.EasySubsystemComponent;

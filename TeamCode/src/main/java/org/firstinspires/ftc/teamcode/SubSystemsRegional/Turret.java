@@ -15,7 +15,7 @@ public class Turret extends EasySubsystemBase {
     private EasyPIDController pid;
 
     private static final double MOTOR_TPR = 537.7;
-    private static final double GEAR_RATIO = 144.0 / 61.0;
+    private static final double GEAR_RATIO = 144.0 / 62.0;
     private static final double TICKS_PER_DEGREE = (MOTOR_TPR * GEAR_RATIO) / 360.0;
     private double targetDegrees = 0.0;
     private double manualOffset = 0.0;
