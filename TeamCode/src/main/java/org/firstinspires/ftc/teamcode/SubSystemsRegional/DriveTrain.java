@@ -19,7 +19,7 @@ public class DriveTrain extends EasySubsystemBase {
     @Override
     public void init(HardwareMap hardwareMap) {
         follower = Constants.create(hardwareMap);
-        follower.setPose(new Pose(56, 8, 0));
+        follower.setPose(new Pose(47.8, -0.24, Math.toDegrees(0)));
         slowMode = false;
     }
 

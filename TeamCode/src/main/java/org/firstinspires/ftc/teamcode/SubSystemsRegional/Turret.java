@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.SubSystemsRegional;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig;
 import org.firstinspires.ftc.teamcode.ConfigRegional.TuningConfig;
-
 import dev.easyfamily.EasyStack.control.EasyPIDController;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotor;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotorType;
@@ -16,14 +15,17 @@ public class Turret extends EasySubsystemBase {
     private EasyPIDController pid;
 
     private static final double MOTOR_TPR = 537.7;
-    private static final double GEAR_RATIO = 2.32;
+    private static final double GEAR_RATIO = 144.0 / 61.0;
     private static final double TICKS_PER_DEGREE = (MOTOR_TPR * GEAR_RATIO) / 360.0;
     private double targetDegrees = 0.0;
+    private double manualOffset = 0.0;
+    private static final double STEP_DEGREE = 5.0;
 
     @Override
     public void init(HardwareMap hardwareMap) {
         turretMotor = new EasyMotor(hardwareMap, "turret", EasyMotorType.GOBILDA_312);
-        turretMotor.setCurrentPositionAsZero();
+        turretMotor.setInverted(false);
+        turretMotor.stopAndResetEncoder();
 
         pid = new EasyPIDController(
                 RobotConfig.Turret.kP,
@@ -34,8 +36,16 @@ public class Turret extends EasySubsystemBase {
         pid.setMaxIntegralSum(50.0);
     }
 
+    private double normalizeAngleDeg(double angle) {
+        angle = angle % 360;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+        return angle;
+    }
+
     public void aimAtGoal(double robotX, double robotY, double robotHeading) {
-        double goalX, goalY;
+        double goalX;
+        double goalY;
 
         if (robotY <= 72.0) {
             goalX = RobotConfig.Field.goalRightX;
@@ -50,14 +60,24 @@ public class Turret extends EasySubsystemBase {
 
         double absoluteGoalAngleRad = Math.atan2(deltaY, deltaX);
         double relativeAngleRad = absoluteGoalAngleRad - robotHeading;
-
         double targetFieldDegrees = Math.toDegrees(relativeAngleRad);
+        double normalizedAngle = normalizeAngleDeg(targetFieldDegrees);
 
-        targetDegrees = EasyMathFunctions.clamp(targetFieldDegrees, -90, 180);
+        double rawTarget = normalizedAngle + manualOffset;
+        targetDegrees = EasyMathFunctions.clamp(rawTarget, -90, 180);
     }
 
     public void setManualTarget() {
         targetDegrees = 0.0;
+        manualOffset = 0.0;
+    }
+
+    public void incrementManualOffset() {
+        manualOffset += STEP_DEGREE;
+    }
+
+    public void decrementManualOffset() {
+        manualOffset -= STEP_DEGREE;
     }
 
     @Override
@@ -86,7 +106,7 @@ public class Turret extends EasySubsystemBase {
             power = 0.0;
         }
 
-        power = dev.easyfamily.EasyStack.util.EasyMathFunctions.clamp(power, -0.35, 0.35);
+        power = EasyMathFunctions.clamp(power, -0.4, 0.4);
         turretMotor.setPower(power);
     }
 
@@ -102,5 +122,9 @@ public class Turret extends EasySubsystemBase {
 
     public double getErrorDegrees() {
         return pid != null ? pid.getError() : 0.0;
+    }
+
+    public double getManualOffset() {
+        return manualOffset;
     }
 }

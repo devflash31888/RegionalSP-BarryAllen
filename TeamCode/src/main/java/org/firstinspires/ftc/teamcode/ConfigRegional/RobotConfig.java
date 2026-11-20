@@ -10,12 +10,12 @@ public class RobotConfig {
     }
 
     public static class Field {
-        public static double relocX = 9;
-        public static double relocY = 9;
+        public static double relocX = 0;
+        public static double relocY = 0;
         public static double relocHeading = 0;
 
-        public static double goalLeftX = 57.5, goalLeftY = 90;
-        public static double goalRightX = 57.5, goalRightY = 51.3;
+        public static double goalLeftX = 52.05, goalLeftY = 80.64;
+        public static double goalRightX = 52.05, goalRightY = 46.98;
     }
 
     public static class Intake {

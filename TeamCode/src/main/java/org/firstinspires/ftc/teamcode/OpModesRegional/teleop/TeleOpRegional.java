@@ -61,6 +61,12 @@ public class TeleOpRegional extends EasyOpMode {
             double robotHeading = drivetrain.getHeading();
 
             turret.aimAtGoal(robotX, robotY, robotHeading);
+
+            if (score.rightBumperPressed()) {
+                turret.incrementManualOffset();
+            } else if (score.leftBumperPressed()) {
+                turret.decrementManualOffset();
+            }
         }
 
         if (score.x()) {
