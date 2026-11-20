@@ -23,7 +23,7 @@ public class Gate extends EasySubsystemBase {
     }
 
     public void open() {
-        if (!open) {
+        if (!open && servo != null) {
             open = true;
             servo.setState("OPEN");
             openTimestamp = System.currentTimeMillis();
@@ -33,7 +33,9 @@ public class Gate extends EasySubsystemBase {
 
     public void close() {
         open = false;
-        servo.setState("CLOSED");
+        if (servo != null) {
+            servo.setState("CLOSED");
+        }
         timerStarted = false;
     }
 

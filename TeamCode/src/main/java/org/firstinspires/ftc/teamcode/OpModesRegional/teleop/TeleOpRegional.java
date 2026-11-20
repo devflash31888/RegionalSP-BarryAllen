@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.SubSystemsRegional.DriveTrain;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.FlowerRemover;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Gate;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Intake;
+import org.firstinspires.ftc.teamcode.SubSystemsRegional.Turret;
 
 import dev.easyfamily.EasyStack.components.EasyCommandComponent;
 import dev.easyfamily.EasyStack.components.EasySubsystemComponent;
@@ -19,6 +20,7 @@ public class TeleOpRegional extends EasyOpMode {
     private final Gate gate = new Gate();
     private final DriveTrain drivetrain = new DriveTrain();
     private final FlowerRemover flower = new FlowerRemover();
+    private final Turret turret = new Turret();
     private EasyGamepad score, nav;
 
     @Override
@@ -31,6 +33,7 @@ public class TeleOpRegional extends EasyOpMode {
                 new EasySubsystemComponent(gate),
                 new EasySubsystemComponent(drivetrain),
                 new EasySubsystemComponent(flower),
+                new EasySubsystemComponent(turret),
                 new EasyCommandComponent()
         );
     }
@@ -50,8 +53,18 @@ public class TeleOpRegional extends EasyOpMode {
             drivetrain.relocalize();
         }
 
+        if (nav.leftBumperToggle()) {
+            turret.setManualTarget();
+        } else {
+            double robotX = drivetrain.getPose().x();
+            double robotY = drivetrain.getPose().y();
+            double robotHeading = drivetrain.getHeading();
+
+            turret.aimAtGoal(robotX, robotY, robotHeading);
+        }
+
         if (score.x()) {
-            intake.reverse();
+            intake.turnReverse();
         } else if (score.a()) {
             gate.open();
 
@@ -73,12 +86,21 @@ public class TeleOpRegional extends EasyOpMode {
         } else {
             flower.up();
         }
+
+        telemetry.addData("Turret Alvo", turret.getTargetDegrees());
+        telemetry.addData("Turret Erro", turret.getErrorDegrees());
+        telemetry.addData("Posição X", drivetrain.getPose().x());
+        telemetry.addData("Posição Y", drivetrain.getPose().y());
+        telemetry.addData("Posição Z", drivetrain.getPose().heading());
+        telemetry.update();
+
     }
 
     @Override
     public void onStop() {
         intake.turnOff();
         gate.close();
+        turret.stop();
     }
 
 }

@@ -12,12 +12,14 @@ import dev.easyfamily.EasyStack.subsytem.EasySubsystemBase;
 
 public class DriveTrain extends EasySubsystemBase {
 
+
     private Follower follower;
     private boolean slowMode = false;
 
     @Override
     public void init(HardwareMap hardwareMap) {
         follower = Constants.create(hardwareMap);
+        follower.setPose(new Pose(56, 8, 0));
         slowMode = false;
     }
 

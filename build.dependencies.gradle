@@ -25,4 +25,7 @@ dependencies {
 
     implementation 'com.pedropathing.ivy:pedro:1.1.1'
 
+    implementation "com.bylazar:docs:1.0.8"
+    implementation "com.bylazar:fullpanels:1.0.8"
+
 }

@@ -31,13 +31,13 @@ public class RobotConfig {
 
     public static class Gate {
         public static double openPosition = 0.4;
-        public static double closedPosition = 0.0;
+        public static double closedPosition = 0.14;
         public static double moveTimeMS = 50;
     }
 
     public static class FlowerRemover {
-        public static double downPosition = 0.1;
-        public static double upPosition = 0.5;
+        public static double downPositionRight = 0.5;
+        public static double upPositionRight = 0.0;
         public static double moveTimeMs = 400;
     }
 
@@ -49,15 +49,14 @@ public class RobotConfig {
     }
 
     public static class Turret {
-        public static double ticksPerDegree = 10.0; //ajustar
-        public static double minAngleDeg = -175.0;
-        public static double maxAngleDeg = 175.0;
-        public static double angleToleranceDeg = 1.5;
+        public static double angleToleranceDeg = 0.3;
 
-        public static double kP = 0.0; //ajustar
-        public static double kI = 0.0; //ajustar
-        public static double kD = 0.0; //ajustar
+        public static double angleDefault = 0.0;
 
+        public static double kP = 0.02;
+        public static double kI = 0.0;
+        public static double kD = 0.001;
+        public static double kS = 0.01;
     }
 
     public static class Shooter {
@@ -71,9 +70,5 @@ public class RobotConfig {
         public static double[] shootDistances = {0, 0, 0, 0, 0};// ajustar
         public static double[] shootSpeeds = {0, 0, 0, 0, 0};// ajustar
         public static double[] shootHood = {0, 0, 0, 0, 0};// ajustar
-
-        public static double goalRedLeftX = 57.5, goalRedLeftY = 90;
-        public static double goalRedRightX = 57.5, goalRedRightY = 51.3;
-
     }
 }

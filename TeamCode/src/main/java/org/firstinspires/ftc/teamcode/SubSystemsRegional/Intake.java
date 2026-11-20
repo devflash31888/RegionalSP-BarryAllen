@@ -6,20 +6,16 @@ import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Intake.r
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.off;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.on;
 
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import dev.easyfamily.EasyStack.controllable.EasyDistanceSensor;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotor;
-import dev.easyfamily.EasyStack.hardware.Motors.EasyMotorType;
-import dev.easyfamily.EasyStack.hardware.Sensors.EasyDigitalDevice;
-import dev.easyfamily.EasyStack.hardware.Sensors.EasyRevColorSensorV3;
+import dev.easyfamily.EasyStack.hardware.Servo.EasyPwmPresets;
 import dev.easyfamily.EasyStack.hardware.Servo.EasyServo;
-import dev.easyfamily.EasyStack.hardware.Servo.PwmPresets;
 import dev.easyfamily.EasyStack.subsytem.EasyStateSubsystem;
-import dev.easyfamily.EasyStack.subsytem.EasySubsystem;
-import dev.easyfamily.EasyStack.util.Debouncer;
+import dev.easyfamily.EasyStack.util.EasyDebouncer;
 
 public class Intake extends EasyStateSubsystem<Intake.Mode> {
 
@@ -27,10 +23,8 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
 
     private EasyMotor intake;
     private EasyServo led;
-    private EasyRevColorSensorV3 distanceSensor;
-    private EasyDistanceSensor.DistanceTarget pieceDetectedTarget;
-    private Debouncer pieceDebouncer;
-
+    private DistanceSensor distanceSensor;
+    private EasyDebouncer pieceDebouncer;
     private boolean pieceDetected = false;
 
     public Intake() {
@@ -43,21 +37,20 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         intake.setPower(def);
 
         led = new EasyServo(hardwareMap, "led")
-                .setPwmRange(PwmPresets.FULL_RANGE)
                 .addState("OFF", off)
                 .addState("ON", on);
         led.setState("OFF");
 
-        distanceSensor = new EasyRevColorSensorV3(hardwareMap, "distanceSensor");
-        pieceDetectedTarget = new EasyDistanceSensor.DistanceTarget(DistanceUnit.MM, 0, 40, "PieceDetected");
-        distanceSensor.addTarget(pieceDetectedTarget);
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
-        pieceDebouncer = new Debouncer(500, Debouncer.Type.RISING);
+        pieceDebouncer = new EasyDebouncer(500, EasyDebouncer.Type.RISING);
     }
 
     @Override
     public void loop() {
-        boolean rawDetection = distanceSensor.targetReached(pieceDetectedTarget);
+        double currentDistance = distanceSensor.getDistance(DistanceUnit.MM);
+        boolean rawDetection = (currentDistance >= 6.35 && currentDistance <= 9);
+
         pieceDetected = pieceDebouncer.calculate(rawDetection);
 
         if(pieceDetected) {
@@ -65,6 +58,10 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         } else {
             led.setState("OFF");
         }
+    }
+
+    public double getDistance() {
+        return distanceSensor.getDistance(DistanceUnit.MM);
     }
 
     public void turnOn() {
@@ -75,7 +72,7 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         intake.setPower(def);
     }
 
-    public void reverse() {
+    public void turnReverse() {
         intake.setPower(reversePower);
     }
 
