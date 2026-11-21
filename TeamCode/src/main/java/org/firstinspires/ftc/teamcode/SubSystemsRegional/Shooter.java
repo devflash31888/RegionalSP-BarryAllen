@@ -10,7 +10,7 @@ import dev.easyfamily.EasyStack.hardware.Motors.EasyMotor;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotorType;
 import dev.easyfamily.EasyStack.subsytem.EasySubsystemBase;
 import dev.easyfamily.EasyStack.util.EasyMathFunctions;
-import dev.easyfamily.EasyStack.util.EasyInterpLUT; // Certifique-se do import correto da sua lib
+import dev.easyfamily.EasyStack.util.EasyInterpLUT;
 
 public class Shooter extends EasySubsystemBase {
 
@@ -20,7 +20,7 @@ public class Shooter extends EasySubsystemBase {
 
     private double kS = 0.025;
     private double kV = 0.00042;
-    private double kP = 0.0035;
+    private double kP = 0.0025;
 
     private double targetVelocity = 0;
     private double targetHood = 0.0;
@@ -28,6 +28,8 @@ public class Shooter extends EasySubsystemBase {
 
     private EasyInterpLUT velocityTable;
     private EasyInterpLUT hoodTable;
+
+    private static final double BANG_BANG_MARGIN = 90.0;
 
     @Override
     public void init(HardwareMap hardwareMap) {
@@ -43,13 +45,15 @@ public class Shooter extends EasySubsystemBase {
         velocityTable = new EasyInterpLUT();
         hoodTable = new EasyInterpLUT();
 
-        velocityTable.add(100.0, 1100.0);
-        velocityTable.add(200.0, 1400.0);
-        velocityTable.add(300.0, 1700.0);
+        velocityTable.add(40.0, 1325);
+        velocityTable.add(50.0, 1350);
+        velocityTable.add(60.0, 1350);
+        velocityTable.add(70.0, 1475);
 
-        hoodTable.add(100.0, 0.0);
-        hoodTable.add(200.0, 0.3);
-        hoodTable.add(300.0, 0.6);
+        hoodTable.add(40.0, 0.0);
+        hoodTable.add(50.0, 0.12);
+        hoodTable.add(60.0, 0.105);
+        hoodTable.add(70.0, 0.24);
 
         velocityTable.createLUT();
         hoodTable.createLUT();
@@ -85,10 +89,27 @@ public class Shooter extends EasySubsystemBase {
         double currentA = shooterMotor.getVelocity();
         double currentB = shooterMotorB.getVelocity();
 
+        double errorA = targetVelocity - currentA;
+        double errorB = targetVelocity - currentB;
+
         double ffPower = (kS * Math.signum(targetVelocity)) + (kV * targetVelocity);
 
-        double powerA = ffPower + pidA.calculate(currentA, targetVelocity);
-        double powerB = ffPower + pidB.calculate(currentB, targetVelocity);
+        double powerA;
+        double powerB;
+
+        if (errorA > BANG_BANG_MARGIN) {
+            powerA = 1.0; // Longe do alvo: potência máxima para acelerar rápido
+            pidA.reset();
+        } else {
+            powerA = ffPower + pidA.calculate(currentA, targetVelocity); // Próximo ao alvo: assume PIDF
+        }
+
+        if (errorB > BANG_BANG_MARGIN) {
+            powerB = 1.0;
+            pidB.reset();
+        } else {
+            powerB = ffPower + pidB.calculate(currentB, targetVelocity);
+        }
 
         shooterMotor.setPower(EasyMathFunctions.clamp(powerA, 0.0, 1.0));
         shooterMotorB.setPower(EasyMathFunctions.clamp(powerB, 0.0, 1.0));

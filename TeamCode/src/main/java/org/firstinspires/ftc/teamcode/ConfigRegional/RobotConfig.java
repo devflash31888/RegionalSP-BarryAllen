@@ -14,8 +14,9 @@ public class RobotConfig {
         public static double relocY = 0;
         public static double relocHeading = 0;
 
-        public static double goalLeftX = 52.05, goalLeftY = 80.64;
-        public static double goalRightX = 52.05, goalRightY = 46.98;
+        public static double goalLeftX = 50.2, goalLeftY = 82.9;
+        public static double goalRightX = 50.2, goalRightY = 42.5;
+
     }
 
     public static class Intake {
@@ -36,7 +37,7 @@ public class RobotConfig {
     }
 
     public static class FlowerRemover {
-        public static double downPositionRight = 0.5;
+        public static double downPositionRight = 0.46;
         public static double upPositionRight = 0.0;
         public static double moveTimeMs = 400;
     }

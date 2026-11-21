@@ -43,7 +43,7 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
 
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
-        pieceDebouncer = new EasyDebouncer(500, EasyDebouncer.Type.RISING);
+        pieceDebouncer = new EasyDebouncer(1000, EasyDebouncer.Type.RISING);
     }
 
     @Override

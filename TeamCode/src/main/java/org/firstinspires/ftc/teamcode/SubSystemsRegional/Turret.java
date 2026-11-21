@@ -48,13 +48,12 @@ public class Turret extends EasySubsystemBase {
         double goalY;
 
         if (robotY <= 72.0) {
-            goalX = RobotConfig.Field.goalRightX;
             goalY = RobotConfig.Field.goalRightY;
+            goalX = RobotConfig.Field.goalRightX;
         } else {
-            goalX = RobotConfig.Field.goalLeftX;
             goalY = RobotConfig.Field.goalLeftY;
+            goalX = RobotConfig.Field.goalLeftX;
         }
-
         double deltaX = goalX - robotX;
         double deltaY = goalY - robotY;
 
@@ -106,7 +105,7 @@ public class Turret extends EasySubsystemBase {
             power = 0.0;
         }
 
-        power = EasyMathFunctions.clamp(power, -0.4, 0.4);
+        power = EasyMathFunctions.clamp(power, -0.3, 0.3);
         turretMotor.setPower(power);
     }
 
