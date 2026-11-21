@@ -17,9 +17,9 @@ public class Shooter extends EasySubsystemBase {
     private EasyPIDFController pidA, pidB;
     private Servo hood;
 
-    private final double kS = 0.025;
+    private final double kS = 0.075;
     private final double kV = 0.00042;
-    private final double kP = 0.0025;
+    private final double kP = 0.001;
 
     private double targetVelocity = 1100.0;
     private double targetHood = 0.0;
