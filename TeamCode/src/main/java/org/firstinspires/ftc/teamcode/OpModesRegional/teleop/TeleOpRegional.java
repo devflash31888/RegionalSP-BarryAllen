@@ -65,7 +65,7 @@ public class TeleOpRegional extends EasyOpMode {
             turret.setManualTarget();
             shooter.setDefault();
         } else {
-            turret.aimAtGoal(robotX, robotY, robotHeading);
+            turret.swm(robotX, robotY, robotHeading, drivetrain.getXVelocity(), drivetrain.getYVelocity());
             shooter.calculateDistanceAndInterpolate(robotX, robotY);
 
             if (score.rightBumperPressed()) {
@@ -99,8 +99,6 @@ public class TeleOpRegional extends EasyOpMode {
             flower.up();
         }
 
-        telemetry.addData("Turret Alvo", turret.getTargetDegrees());
-        telemetry.addData("Turret Offset Manual", turret.getManualOffset());
         telemetry.addData("Posição X", robotX);
         telemetry.addData("Posição Y", robotY);
         telemetry.addData("Posição Z", robotHeading);

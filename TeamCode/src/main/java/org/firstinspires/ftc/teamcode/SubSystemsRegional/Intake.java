@@ -49,7 +49,7 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
     @Override
     public void loop() {
         double currentDistance = distanceSensor.getDistance(DistanceUnit.MM);
-        boolean rawDetection = (currentDistance >= 6.35 && currentDistance <= 9);
+        boolean rawDetection = (currentDistance >= 6.35 && currentDistance <= 7.5);
 
         pieceDetected = pieceDebouncer.calculate(rawDetection);
 

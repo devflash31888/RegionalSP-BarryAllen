@@ -61,22 +61,19 @@ public class TeleopRegionalSolo extends EasyOpMode {
         double robotY = drivetrain.getPose().y();
         double robotHeading = drivetrain.getHeading();
 
-        shooter.calculateDistanceAndInterpolate(robotX, robotY);
-        turret.setManualTarget();
+        if (nav.startPressed()) {
+            turret.setManualTarget();
+            shooter.setDefault();
+        } else {
+            turret.aimAtGoal(robotX, robotY, robotHeading);
+            shooter.calculateDistanceAndInterpolate(robotX, robotY);
 
-//        if (nav.startPressed()) {
-//            turret.setManualTarget();
-//            shooter.setDefault();
-//        } else {
-//            turret.aimAtGoal(robotX, robotY, robotHeading);
-//            shooter.calculateDistanceAndInterpolate(robotX, robotY);
-//
-//            if (nav.rightBumperPressed()) {
-//                turret.incrementManualOffset();
-//            } else if (nav.leftBumperPressed()) {
-//                turret.decrementManualOffset();
-//            }
-//        }
+            if (nav.rightBumperPressed()) {
+                turret.incrementManualOffset();
+            } else if (nav.leftBumperPressed()) {
+                turret.decrementManualOffset();
+            }
+        }
 
         if (nav.x()) {
             intake.turnReverse();
@@ -108,7 +105,6 @@ public class TeleopRegionalSolo extends EasyOpMode {
         telemetry.addData("Posição Y", robotY);
         telemetry.addData("Posição Z", robotHeading);
         telemetry.addData("Shooter Target LUT", shooter.getTargetVelocity());
-        telemetry.addData("Shooter Atual", shooter.getCurrentVelocityA());
         telemetry.update();
     }
 

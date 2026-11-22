@@ -39,7 +39,6 @@ public class RobotConfig {
     public static class FlowerRemover {
         public static double downPositionRight = 0.46;
         public static double upPositionRight = 0.0;
-        public static double moveTimeMs = 400;
     }
 
 

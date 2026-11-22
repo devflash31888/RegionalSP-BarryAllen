@@ -40,7 +40,6 @@ public class Shooter extends EasySubsystemBase {
         pidB = new EasyPIDFController(kP, 0.0, 0.0, 0.0);
     }
 
-    // Método para calcular a distância e atualizar com base na posição do Drivetrain
     public void calculateDistance(double robotX, double robotY) {
         double goalX = (robotY <= 72.0) ? RobotConfig.Field.goalRightX : RobotConfig.Field.goalLeftX;
         double goalY = (robotY <= 72.0) ? RobotConfig.Field.goalRightY : RobotConfig.Field.goalLeftY;

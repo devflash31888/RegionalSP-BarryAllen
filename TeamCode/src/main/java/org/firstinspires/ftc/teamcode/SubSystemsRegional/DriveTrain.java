@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.SubSystemsRegional;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.pedropathing.math.Velocity;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig;
@@ -65,6 +66,8 @@ public class DriveTrain extends EasySubsystemBase {
                 robotLateral * scale,
                 turn * scale
         );
+
+        follower.tangentialVelocity();
     }
 
     public void resetHeading() {
@@ -118,5 +121,17 @@ public class DriveTrain extends EasySubsystemBase {
         return Math.copySign(
                 Math.pow(magnitude, RobotConfig.Drive.stickExponent),
                 input);
+    }
+
+    public double getXVelocity() {
+        if (follower == null) return 0.0;
+        Velocity v = follower.velocity();
+        return v != null ? v.vx : 0.0;
+    }
+
+    public double getYVelocity() {
+        if (follower == null) return 0.0;
+        Velocity v = follower.velocity();
+        return v != null ? v.vy : 0.0;
     }
 }
