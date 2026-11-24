@@ -36,10 +36,10 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         intake = new EasyMotor(hardwareMap, "intake").reversed();
         intake.setPower(def);
 
-        led = new EasyServo(hardwareMap, "led")
-                .addState("OFF", off)
-                .addState("ON", on);
-        led.setState("OFF");
+//        led = new EasyServo(hardwareMap, "led")
+//                .addState("OFF", off)
+//                .addState("ON", on);
+//        led.setState("OFF");
 
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
@@ -52,12 +52,12 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         boolean rawDetection = (currentDistance >= 6.35 && currentDistance <= 7.5);
 
         pieceDetected = pieceDebouncer.calculate(rawDetection);
-
-        if(pieceDetected) {
-            led.setState("ON");
-        } else {
-            led.setState("OFF");
-        }
+//
+//        if(pieceDetected) {
+//            led.setState("ON");
+//        } else {
+//            led.setState("OFF");
+//        }
     }
 
     public double getDistance() {

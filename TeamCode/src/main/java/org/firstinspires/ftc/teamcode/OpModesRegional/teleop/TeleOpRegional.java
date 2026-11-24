@@ -65,7 +65,7 @@ public class TeleOpRegional extends EasyOpMode {
             turret.setManualTarget();
             shooter.setDefault();
         } else {
-            turret.swm(robotX, robotY, robotHeading, drivetrain.getXVelocity(), drivetrain.getYVelocity());
+            turret.aimToGoal(robotX, robotY, robotHeading, drivetrain.getXVelocity(), drivetrain.getYVelocity());
             shooter.calculateDistanceAndInterpolate(robotX, robotY);
 
             if (score.rightBumperPressed()) {

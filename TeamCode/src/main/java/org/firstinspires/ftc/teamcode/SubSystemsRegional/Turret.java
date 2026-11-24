@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.SubSystemsRegional;
 
+import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.off;
+import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.on;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Turret.angleToleranceDeg;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,6 +10,7 @@ import org.firstinspires.ftc.teamcode.ConfigRegional.TuningConfig;
 import dev.easyfamily.EasyStack.control.EasyPIDController;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotor;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotorType;
+import dev.easyfamily.EasyStack.hardware.Servo.EasyServo;
 import dev.easyfamily.EasyStack.subsytem.EasySubsystemBase;
 import dev.easyfamily.EasyStack.util.EasyInterpLUT;
 import dev.easyfamily.EasyStack.util.EasyMathFunctions;
@@ -27,6 +30,8 @@ public class Turret extends EasySubsystemBase {
     private EasyInterpLUT flightTime;
 
     private double distanceToGoal, targetFlightTime;
+
+    private EasyServo ledPwm;
 
     @Override
     public void init(HardwareMap hardwareMap) {
@@ -50,6 +55,12 @@ public class Turret extends EasySubsystemBase {
         flightTime.add(70.0, 0.05);
 
         flightTime.createLUT();
+
+        ledPwm = new EasyServo(hardwareMap, "ledPwm")
+                .addState("OFF", off)
+                .addState("ON", on);
+        ledPwm.setState("OFF");
+
     }
 
     private double normalizeAngleDeg(double angle) {
@@ -72,7 +83,7 @@ public class Turret extends EasySubsystemBase {
         }
     }
 
-    public void swm(double robotX, double robotY, double robotHeading, double vx, double vy) {
+    public void aimToGoal(double robotX, double robotY, double robotHeading, double vx, double vy) {
         double goalX;
         double goalY;
 
@@ -140,7 +151,13 @@ public class Turret extends EasySubsystemBase {
             power = 0.0;
         }
 
-        power = EasyMathFunctions.clamp(power, -0.65, 0.65);
+        if(errorDegrees < 5.0) {
+            ledPwm.setState("ON");
+        } else {
+            ledPwm.setState("OFF");
+        }
+
+        power = EasyMathFunctions.clamp(power, -0.8, 0.8);
         turretMotor.setPower(power);
     }
 

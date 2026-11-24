@@ -26,5 +26,4 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation 'io.github.ferreirovskizz:wintechlib:1.2.0'
 }

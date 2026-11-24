@@ -6,8 +6,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig;
 
 import dev.easyfamily.EasyStack.control.EasyPIDFController;
+import dev.easyfamily.EasyStack.dashboard.EasyTunable;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotor;
+import dev.easyfamily.EasyStack.hardware.Motors.EasyMotorGroup;
 import dev.easyfamily.EasyStack.hardware.Motors.EasyMotorType;
+import dev.easyfamily.EasyStack.hardware.Servo.EasyServo;
 import dev.easyfamily.EasyStack.subsytem.EasySubsystemBase;
 import dev.easyfamily.EasyStack.util.EasyMathFunctions;
 import dev.easyfamily.EasyStack.util.EasyInterpLUT;
@@ -15,12 +18,23 @@ import dev.easyfamily.EasyStack.util.EasyInterpLUT;
 public class Shooter extends EasySubsystemBase {
 
     private EasyMotor shooterMotor, shooterMotorB;
-    private EasyPIDFController pidA, pidB;
-    private Servo hood;
+    private EasyMotorGroup shooter_motors;
+    private EasyServo hood;
 
-    private double kS = 0.1;
-    private double kV = 0.00036;
-    private double kP = 0.0025;
+    @EasyTunable
+    public static double rpm = 0; // velocidade para alterar em tempo real
+
+    @EasyTunable
+    public static double hoodPosition = 0; // Posição do capuz em tempo real
+
+    @EasyTunable
+    public static double kS = 0.1;
+
+    @EasyTunable
+    public static double kV = 0.00036;
+
+    @EasyTunable
+    public static double kP = 0.0025;
 
     private double targetVelocity = 0;
     private double targetHood = 0.0;
@@ -29,19 +43,13 @@ public class Shooter extends EasySubsystemBase {
     private EasyInterpLUT velocityTable;
     private EasyInterpLUT hoodTable;
 
-    private static final double BANG_BANG_MARGIN = 90.0;
+    public void configurePIDF() {
+        shooter_motors
+                .setVelocityFF(kS, kV)
+                .setVelocityPIDF(kP, 0, 0, 0);
+    }
 
-    @Override
-    public void init(HardwareMap hardwareMap) {
-        shooterMotor = new EasyMotor(hardwareMap, "shooterA", EasyMotorType.REV_HD_NAKED);
-        shooterMotorB = new EasyMotor(hardwareMap, "shooterB", EasyMotorType.REV_HD_NAKED);
-        shooterMotorB.setInverted(true);
-
-        hood = hardwareMap.get(Servo.class, "hood");
-
-        pidA = new EasyPIDFController(kP, 0.0, 0.0, 0.0);
-        pidB = new EasyPIDFController(kP, 0.0, 0.0, 0.0);
-
+    public void lut() {
         velocityTable = new EasyInterpLUT();
         hoodTable = new EasyInterpLUT();
 
@@ -57,6 +65,19 @@ public class Shooter extends EasySubsystemBase {
 
         velocityTable.createLUT();
         hoodTable.createLUT();
+    }
+
+    @Override
+    public void init(HardwareMap hardwareMap) {
+        shooterMotor = new EasyMotor(hardwareMap, "shooterA", EasyMotorType.REV_HD_NAKED);
+        shooterMotorB = new EasyMotor(hardwareMap, "shooterB", EasyMotorType.REV_HD_NAKED).setInverted(true);
+
+        shooter_motors = new EasyMotorGroup(shooterMotor, shooterMotorB)
+                .setLeaderMotor(0);
+
+        hood = new EasyServo(hardwareMap, "hood");
+
+        lut();
     }
 
     public void calculateDistanceAndInterpolate(double robotX, double robotY) {
@@ -75,51 +96,32 @@ public class Shooter extends EasySubsystemBase {
 
     @Override
     public void loop() {
-        if (shooterMotor == null || shooterMotorB == null || pidA == null || pidB == null) return;
+        if (shooterMotor == null || shooterMotorB == null) return;
 
         if (targetVelocity <= 0.0) {
-            shooterMotor.setPower(0.0);
-            shooterMotorB.setPower(0.0);
-            pidA.reset();
-            pidB.reset();
+            shooter_motors.setPower(0);
+            shooter_motors.resetControllers();
             if (hood != null) hood.setPosition(targetHood);
             return;
         }
 
-        double currentA = shooterMotor.getVelocity();
-        double currentB = shooterMotorB.getVelocity();
+        configurePIDF();
 
-        double errorA = targetVelocity - currentA;
-        double errorB = targetVelocity - currentB;
-
-        double ffPower = (kS * Math.signum(targetVelocity)) + (kV * targetVelocity);
-
-        double powerA;
-        double powerB;
-
-        powerA = ffPower + pidA.calculate(currentA, targetVelocity);
-        powerB = ffPower + pidB.calculate(currentB, targetVelocity);
-
-        shooterMotor.setPower(EasyMathFunctions.clamp(powerA, 0.0, 1.0));
-        shooterMotorB.setPower(EasyMathFunctions.clamp(powerB, 0.0, 1.0));
+        shooter_motors.setRPM(rpm);
 
         if (hood != null) {
-            hood.setPosition(targetHood);
+            hood.setPosition(hoodPosition);
         }
+
     }
 
     public void stop() {
         targetVelocity = 0.0;
-        if (shooterMotor != null) shooterMotor.setPower(0.0);
-        if (shooterMotorB != null) shooterMotorB.setPower(0.0);
+        if (shooter_motors != null) shooter_motors.setPower(0.0);
     }
 
-    public double getCurrentVelocityA() {
-        return shooterMotor != null ? shooterMotor.getVelocity() : 0.0;
-    }
-
-    public double getCurrentVelocityB() {
-        return shooterMotorB != null ? shooterMotorB.getVelocity() : 0.0;
+    public double getCurrentVelocity() {
+        return shooter_motors != null ? shooter_motors.getRPM() : 0.0;
     }
 
     public double getTargetVelocity() {
@@ -138,4 +140,17 @@ public class Shooter extends EasySubsystemBase {
         targetVelocity = 1250;
         targetHood = 0.0;
     }
+
+    public void tuningLUT() {
+        shooter_motors.setRPM(rpm);
+        hood.setPosition(hoodPosition);
+    }
+
+    public void calculateDistance(double robotX, double robotY) {
+        double goalX = (robotY <= 72.0) ? RobotConfig.Field.goalRightX : RobotConfig.Field.goalLeftX;
+        double goalY = (robotY <= 72.0) ? RobotConfig.Field.goalRightY : RobotConfig.Field.goalLeftY;
+
+        distanceToGoal = Math.hypot(goalX - robotX, goalY - robotY);
+    }
+
 }

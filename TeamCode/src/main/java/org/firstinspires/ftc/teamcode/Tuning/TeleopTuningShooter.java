@@ -6,10 +6,13 @@ import org.firstinspires.ftc.teamcode.SubSystemsRegional.DriveTrain;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.FlowerRemover;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Gate;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Intake;
+import org.firstinspires.ftc.teamcode.SubSystemsRegional.Shooter;
 
 import dev.easyfamily.EasyStack.components.EasyCommandComponent;
 import dev.easyfamily.EasyStack.components.EasySubsystemComponent;
+import dev.easyfamily.EasyStack.dashboard.EasyDash;
 import dev.easyfamily.EasyStack.gamepad.EasyGamepad;
+import dev.easyfamily.EasyStack.license.EasyLicense;
 import dev.easyfamily.EasyStack.opmode.EasyOpMode;
 
 @TeleOp(name = "Teleop Regional Shooter Tuning")
@@ -19,17 +22,12 @@ public class TeleopTuningShooter extends EasyOpMode {
     private final Gate gate = new Gate();
     private final DriveTrain drivetrain = new DriveTrain();
     private final FlowerRemover flower = new FlowerRemover();
-    private final ShooterSubSystem shooter = new ShooterSubSystem();
+    private final Shooter shooter = new Shooter();
     private EasyGamepad score, nav;
-
-    private double tuningKS = 0.025;
-    private double tuningKV = 0.00042;
-    private double tuningKP = 0.0045;
-    private double targetVelocity = 0.0;
-    private int selectedParam = 0; // 0 = kS, 1 = kV, 2 = kP
 
     @Override
     public void initialize() {
+        EasyLicense.setKey("ES1-eyJ2IjoxLCJ0ZWFtIjozMTg4OCwiaWF0IjoxNzk1MTkyMDY4LCJleHAiOjE4MDI5NjgwNjh9.MEUCIFno9EWlAZ3uT2o8OEpbicP1u1cJC2QqlGv5xDhNbkf3AiEA_eiNxQT8dv4xm2adHsWuc-m75HMWCJp5bzjdBwx75Pc");
         nav = new EasyGamepad(gamepad1);
         score = new EasyGamepad(gamepad2);
 
@@ -82,49 +80,14 @@ public class TeleopTuningShooter extends EasyOpMode {
             flower.up();
         }
 
-        // Alterna entre kS, kV e kP usando os Bumpers do gamepad2 (score)
-        if (score.rightBumperPressed()) {
-            selectedParam = (selectedParam + 1) % 3;
-        }
-        if (score.leftBumperPressed()) {
-            selectedParam = (selectedParam + 2) % 3;
-        }
-
-        // Aumenta o ganho selecionado com D-Pad Cima
-        if (score.dpadUpPressed()) {
-            if (selectedParam == 0) tuningKS += 0.005;
-            else if (selectedParam == 1) tuningKV += 0.00002;
-            else if (selectedParam == 2) tuningKP += 0.0005;
-        }
-        // Diminui o ganho selecionado com D-Pad Baixo (travando em 0.0)
-        if (score.dpadDownPressed()) {
-            if (selectedParam == 0) tuningKS = Math.max(0.0, tuningKS - 0.005);
-            else if (selectedParam == 1) tuningKV = Math.max(0.0, tuningKV - 0.00002);
-            else if (selectedParam == 2) tuningKP = Math.max(0.0, tuningKP - 0.0005);
-        }
-
-        // Aumenta ou diminui a velocidade alvo do Shooter usando D-Pad Direita/Esquerda
-        if (score.dpadRightPressed()) {
-            targetVelocity += 100.0;
-        }
-        if (score.dpadLeftPressed()) {
-            targetVelocity = Math.max(0.0, targetVelocity - 100.0);
-        }
-
-        shooter.setGains(tuningKP, tuningKS, tuningKV);
-        shooter.setTargetVelocity(targetVelocity);
-
-        String[] paramNames = {"kS (Atrito Estático)", "kV (Velocidade)", "kP (Proporcional)"};
+        EasyDash.tunables(Shooter.class);
 
         telemetry.addData("Posição X", drivetrain.getPose().x());
         telemetry.addData("Posição Y", drivetrain.getPose().y());
         telemetry.addData("Heading", drivetrain.getPose().heading());
         telemetry.addLine("--- SHOOTER TUNING ---");
         telemetry.addData("Shooter Alvo (RPM)", shooter.getTargetVelocity());
-        telemetry.addData("Shooter A Atual (RPM)", String.format("%.1f", shooter.getCurrentVelocityA()));
-        telemetry.addData("Shooter B Atual (RPM)", String.format("%.1f", shooter.getCurrentVelocityB()));
-        telemetry.addData("Editando", paramNames[selectedParam]);
-        telemetry.addData("Ganhos", String.format("kS: %.4f | kV: %.6f | kP: %.5f", tuningKS, tuningKV, tuningKP));
+        telemetry.addData("Shooter Atual (RPM)",  shooter.getCurrentVelocity());
         telemetry.update();
     }
 

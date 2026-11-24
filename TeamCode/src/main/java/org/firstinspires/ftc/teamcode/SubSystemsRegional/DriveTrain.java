@@ -67,7 +67,6 @@ public class DriveTrain extends EasySubsystemBase {
                 turn * scale
         );
 
-        follower.tangentialVelocity();
     }
 
     public void resetHeading() {

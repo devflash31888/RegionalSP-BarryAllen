@@ -7,10 +7,12 @@ import org.firstinspires.ftc.teamcode.SubSystemsRegional.FlowerRemover;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Gate;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Intake;
 import org.firstinspires.ftc.teamcode.SubSystemsRegional.Turret;
+import org.firstinspires.ftc.teamcode.SubSystemsRegional.Shooter;
 
 import dev.easyfamily.EasyStack.components.EasyCommandComponent;
 import dev.easyfamily.EasyStack.components.EasySubsystemComponent;
 import dev.easyfamily.EasyStack.gamepad.EasyGamepad;
+import dev.easyfamily.EasyStack.license.EasyLicense;
 import dev.easyfamily.EasyStack.opmode.EasyOpMode;
 
 @TeleOp(name = "TeleopTuningLUT")
@@ -27,6 +29,7 @@ public class TeleopTuningLUT extends EasyOpMode {
 
     @Override
     public void initialize() {
+        EasyLicense.setKey("ES1-eyJ2IjoxLCJ0ZWFtIjozMTg4OCwiaWF0IjoxNzk1MTkyMDY4LCJleHAiOjE4MDI5NjgwNjh9.MEUCIFno9EWlAZ3uT2o8OEpbicP1u1cJC2QqlGv5xDhNbkf3AiEA_eiNxQT8dv4xm2adHsWuc-m75HMWCJp5bzjdBwx75Pc");
         nav = new EasyGamepad(gamepad1);
         score = new EasyGamepad(gamepad2);
 
@@ -68,26 +71,13 @@ public class TeleopTuningLUT extends EasyOpMode {
             turret.setManualTarget();
         } else {
 
-            turret.aimAtGoal(robotX, robotY, robotHeading);
+            turret.aimToGoal(robotX, robotY, robotHeading, drivetrain.getXVelocity(), drivetrain.getYVelocity());
 
             if (score.rightBumperPressed()) {
                 turret.incrementManualOffset();
             } else if (score.leftBumperPressed()) {
                 turret.decrementManualOffset();
             }
-        }
-
-        // Calibração do Shooter e Hood via D-Pad do Gamepad 1
-        if (score.dpadUpPressed()) {
-            shooter.incrementVelocity();
-        } else if (score.dpadDownPressed()) {
-            shooter.decrementVelocity();
-        }
-
-        if (score.dpadRightPressed()) {
-            shooter.incrementHood();
-        } else if (score.dpadLeftPressed()) {
-            shooter.decrementHood();
         }
 
         // Intake e Gate
@@ -115,11 +105,11 @@ public class TeleopTuningLUT extends EasyOpMode {
             flower.up();
         }
 
+
         // Telemetria puxando os dados direto do Shooter
         telemetry.addData("Distância Goal (cm)", shooter.getDistanceToGoal());
         telemetry.addData("Shooter Alvo (Vel)", shooter.getTargetVelocity());
-        telemetry.addData("Shooter Vel A", shooter.getCurrentVelocityA());
-        telemetry.addData("Shooter Vel B", shooter.getCurrentVelocityB());
+        telemetry.addData("Shooter Vel A", shooter.getCurrentVelocity());
         telemetry.addData("Hood Alvo (Pos)", shooter.getTargetHood());
         telemetry.addData("Turret Alvo", turret.getTargetDegrees());
         telemetry.addData("Turret Erro", turret.getErrorDegrees());
