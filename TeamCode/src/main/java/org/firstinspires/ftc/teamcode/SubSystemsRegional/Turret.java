@@ -157,7 +157,7 @@ public class Turret extends EasySubsystemBase {
             ledPwm.setState("OFF");
         }
 
-        power = EasyMathFunctions.clamp(power, -0.8, 0.8);
+        power = EasyMathFunctions.clamp(power, -0.5, 0.5);
         turretMotor.setPower(power);
     }
 

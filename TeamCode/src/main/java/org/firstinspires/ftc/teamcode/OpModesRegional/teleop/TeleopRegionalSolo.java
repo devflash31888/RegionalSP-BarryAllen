@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.SubSystemsRegional.Turret;
 import dev.easyfamily.EasyStack.components.EasyCommandComponent;
 import dev.easyfamily.EasyStack.components.EasySubsystemComponent;
 import dev.easyfamily.EasyStack.gamepad.EasyGamepad;
+import dev.easyfamily.EasyStack.license.EasyLicense;
 import dev.easyfamily.EasyStack.opmode.EasyOpMode;
 
 @TeleOp(name = "Teleop Regional Solo")
@@ -28,6 +29,7 @@ public class TeleopRegionalSolo extends EasyOpMode {
 
     @Override
     public void initialize() {
+        EasyLicense.setKey("ES1-eyJ2IjoxLCJ0ZWFtIjozMTg4OCwiaWF0IjoxNzk1MTkyMDY4LCJleHAiOjE4MDI5NjgwNjh9.MEUCIFno9EWlAZ3uT2o8OEpbicP1u1cJC2QqlGv5xDhNbkf3AiEA_eiNxQT8dv4xm2adHsWuc-m75HMWCJp5bzjdBwx75Pc");
         nav = new EasyGamepad(gamepad1);
         score = new EasyGamepad(gamepad2);
 

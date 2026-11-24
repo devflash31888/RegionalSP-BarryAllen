@@ -28,15 +28,14 @@ public class Shooter extends EasySubsystemBase {
     public static double hoodPosition = 0; // Posição do capuz em tempo real
 
     @EasyTunable
-    public static double kS = 0.1;
+    public static double kS = 0.06;
 
     @EasyTunable
-    public static double kV = 0.00036;
+    public static double kV = 0.00021;
 
     @EasyTunable
-    public static double kP = 0.0025;
+    public static double kP = 0.0015;
 
-    private double targetVelocity = 0;
     private double targetHood = 0.0;
     private double distanceToGoal = 0.0;
 
@@ -53,15 +52,15 @@ public class Shooter extends EasySubsystemBase {
         velocityTable = new EasyInterpLUT();
         hoodTable = new EasyInterpLUT();
 
-        velocityTable.add(40.0, 1275);
-        velocityTable.add(50.0, 1350);
-        velocityTable.add(60.0, 1375);
-        velocityTable.add(70.0, 1450);
+        velocityTable.add(40.0, 2500);
+        velocityTable.add(50.0, 2500);
+        velocityTable.add(60.0, 2750);
+        velocityTable.add(70.0, 2750);
 
         hoodTable.add(40.0, 0.0);
-        hoodTable.add(50.0, 0.1305);
-        hoodTable.add(60.0, 0.18);
-        hoodTable.add(70.0, 0.345);
+        hoodTable.add(50.0, 0.15);
+        hoodTable.add(60.0, 0.21);
+        hoodTable.add(70.0, 0.3);
 
         velocityTable.createLUT();
         hoodTable.createLUT();
@@ -87,7 +86,7 @@ public class Shooter extends EasySubsystemBase {
         distanceToGoal = Math.hypot(goalX - robotX, goalY - robotY);
 
         if (velocityTable != null && velocityTable.size() > 0) {
-            targetVelocity = velocityTable.get(distanceToGoal);
+            rpm = velocityTable.get(distanceToGoal);
         }
         if (hoodTable != null && hoodTable.size() > 0) {
             targetHood = EasyMathFunctions.clamp(hoodTable.get(distanceToGoal), 0.0, 1.0);
@@ -98,7 +97,7 @@ public class Shooter extends EasySubsystemBase {
     public void loop() {
         if (shooterMotor == null || shooterMotorB == null) return;
 
-        if (targetVelocity <= 0.0) {
+        if (rpm <= 0.0) {
             shooter_motors.setPower(0);
             shooter_motors.resetControllers();
             if (hood != null) hood.setPosition(targetHood);
@@ -116,7 +115,7 @@ public class Shooter extends EasySubsystemBase {
     }
 
     public void stop() {
-        targetVelocity = 0.0;
+        rpm = 0.0;
         if (shooter_motors != null) shooter_motors.setPower(0.0);
     }
 
@@ -125,7 +124,7 @@ public class Shooter extends EasySubsystemBase {
     }
 
     public double getTargetVelocity() {
-        return targetVelocity;
+        return rpm;
     }
 
     public double getTargetHood() {
@@ -137,7 +136,7 @@ public class Shooter extends EasySubsystemBase {
     }
 
     public void setDefault() {
-        targetVelocity = 1250;
+        rpm = 2500;
         targetHood = 0.0;
     }
 
