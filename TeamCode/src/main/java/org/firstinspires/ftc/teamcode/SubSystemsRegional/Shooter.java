@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.SubSystemsRegional;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig;
 
@@ -34,13 +37,19 @@ public class Shooter extends EasySubsystemBase {
     public static double kV = 0.00021;
 
     @EasyTunable
-    public static double kP = 0.0015;
+    public static double kP = 0.002;
+
+    public static double bangbang = 11.0;
+    private double calibrationVoltage = 13.0;
+    private double currentVoltage = 13.0;
 
     private double targetHood = 0.0;
     private double distanceToGoal = 0.0;
 
     private EasyInterpLUT velocityTable;
     private EasyInterpLUT hoodTable;
+
+    private VoltageSensor batteryVoltage;
 
     public void configurePIDF() {
         shooter_motors
@@ -74,6 +83,8 @@ public class Shooter extends EasySubsystemBase {
         shooter_motors = new EasyMotorGroup(shooterMotor, shooterMotorB)
                 .setLeaderMotor(0);
 
+        batteryVoltage = hardwareMap.voltageSensor.iterator().next();
+
         hood = new EasyServo(hardwareMap, "hood");
 
         lut();
@@ -89,7 +100,7 @@ public class Shooter extends EasySubsystemBase {
             rpm = velocityTable.get(distanceToGoal);
         }
         if (hoodTable != null && hoodTable.size() > 0) {
-            targetHood = EasyMathFunctions.clamp(hoodTable.get(distanceToGoal), 0.0, 1.0);
+            hoodPosition = EasyMathFunctions.clamp(hoodTable.get(distanceToGoal), 0.0, 1.0);
         }
     }
 
@@ -104,13 +115,23 @@ public class Shooter extends EasySubsystemBase {
             return;
         }
 
-        configurePIDF();
+        currentVoltage = batteryVoltage.getVoltage();
 
-        shooter_motors.setRPM(rpm);
+        double compensatedKV = kV * (calibrationVoltage / currentVoltage);
 
-        if (hood != null) {
-            hood.setPosition(hoodPosition);
+        shooter_motors
+                .setVelocityFF(kS, compensatedKV)
+                .setVelocityPIDF(kP, 0, 0, 0);
+
+        double error = rpm - shooter_motors.getRPM();
+
+        if (error > bangbang) {
+            shooter_motors.setRPM(5000);
+        } else {
+            shooter_motors.setRPM(rpm);
         }
+
+        hood.setPosition(hoodPosition);
 
     }
 
