@@ -39,7 +39,7 @@ public class Shooter extends EasySubsystemBase {
     @EasyTunable
     public static double kP = 0.002;
 
-    public static double bangbang = 11.0;
+    public static double bangbang = 90;
     private double calibrationVoltage = 13.0;
     private double currentVoltage = 13.0;
 
@@ -50,12 +50,6 @@ public class Shooter extends EasySubsystemBase {
     private EasyInterpLUT hoodTable;
 
     private VoltageSensor batteryVoltage;
-
-    public void configurePIDF() {
-        shooter_motors
-                .setVelocityFF(kS, kV)
-                .setVelocityPIDF(kP, 0, 0, 0);
-    }
 
     public void lut() {
         velocityTable = new EasyInterpLUT();
@@ -158,19 +152,11 @@ public class Shooter extends EasySubsystemBase {
 
     public void setDefault() {
         rpm = 2500;
-        targetHood = 0.0;
+        hoodPosition = 0.0;
     }
 
     public void tuningLUT() {
         shooter_motors.setRPM(rpm);
         hood.setPosition(hoodPosition);
     }
-
-    public void calculateDistance(double robotX, double robotY) {
-        double goalX = (robotY <= 72.0) ? RobotConfig.Field.goalRightX : RobotConfig.Field.goalLeftX;
-        double goalY = (robotY <= 72.0) ? RobotConfig.Field.goalRightY : RobotConfig.Field.goalLeftY;
-
-        distanceToGoal = Math.hypot(goalX - robotX, goalY - robotY);
-    }
-
 }
