@@ -143,7 +143,7 @@ public class Turret extends EasySubsystemBase {
 
         double power = pidOutput;
 
-        if (!pid.atTarget() && Math.abs(errorDegrees) > 0.5 && Math.abs(errorDegrees) < 15.0) {
+        if (!pid.atTarget() && Math.abs(errorDegrees) > 0.5) {
             power += Math.signum(errorDegrees) * TuningConfig.TurretTuningConfig.kS;
         }
 
@@ -157,7 +157,7 @@ public class Turret extends EasySubsystemBase {
             ledPwm.setState("OFF");
         }
 
-        power = EasyMathFunctions.clamp(power, -0.5, 0.5);
+        power = EasyMathFunctions.clamp(power, -0.25, 0.25);
         turretMotor.setPower(power);
     }
 

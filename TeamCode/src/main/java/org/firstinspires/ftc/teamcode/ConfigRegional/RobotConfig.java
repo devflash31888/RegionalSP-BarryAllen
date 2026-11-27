@@ -28,6 +28,9 @@ public class RobotConfig {
     public static class Led {
         public static double on = 1.0;
         public static double off = 0.0;
+
+        public static double green = 0.5;
+        public static double red = 0.28;
     }
 
     public static class Gate {

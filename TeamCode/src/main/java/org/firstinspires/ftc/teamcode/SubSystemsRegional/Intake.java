@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.SubSystemsRegional;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Intake.def;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Intake.intakePower;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Intake.reversePower;
+import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.green;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.off;
 import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.on;
+import static org.firstinspires.ftc.teamcode.ConfigRegional.RobotConfig.Led.red;
 
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -36,14 +38,14 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         intake = new EasyMotor(hardwareMap, "intake").reversed();
         intake.setPower(def);
 
-//        led = new EasyServo(hardwareMap, "led")
-//                .addState("OFF", off)
-//                .addState("ON", on);
-//        led.setState("OFF");
+        led = new EasyServo(hardwareMap, "led")
+                .addState("RED", red)
+                .addState("GREEN", green);
+        led.setState("RED");
 
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
-        pieceDebouncer = new EasyDebouncer(1000, EasyDebouncer.Type.RISING);
+        pieceDebouncer = new EasyDebouncer(1500, EasyDebouncer.Type.RISING);
     }
 
     @Override
@@ -52,12 +54,12 @@ public class Intake extends EasyStateSubsystem<Intake.Mode> {
         boolean rawDetection = (currentDistance >= 6.35 && currentDistance <= 7.5);
 
         pieceDetected = pieceDebouncer.calculate(rawDetection);
-//
-//        if(pieceDetected) {
-//            led.setState("ON");
-//        } else {
-//            led.setState("OFF");
-//        }
+
+        if(pieceDetected) {
+            led.setState("GREEN");
+        } else {
+            led.setState("RED");
+        }
     }
 
     public double getDistance() {
